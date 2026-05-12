@@ -12,7 +12,7 @@ router.post("/", upload.single("image"), createAmenity);
 
 router.get("/",getAllAmenity);
 router.get("/:id",getAmenityById);
-router.put("/:id",updateAmenity);
+router.put("/:id", upload.single("image"), updateAmenity);
 router.delete("/:id",deleteAmenity)
 
 router.get("/:propertyId/amenities",getPropertyAmenity);

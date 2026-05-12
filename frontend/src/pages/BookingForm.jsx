@@ -6,6 +6,7 @@ import DashboardLayout from "../component/SideBar";
 import { jwtDecode } from "jwt-decode";
 import { fetchUserProfile } from "../api/user";
 import { getPropertyAmenities } from "../api/amenity";
+import { toast } from "react-toastify";
 
 // PropFlow Design Tokens
 const tokens = {
@@ -84,7 +85,7 @@ export default function CreateBookingForm() {
         if (token) {
           const decoded = jwtDecode(token);
           const userProfile = await fetchUserProfile(decoded.id);
-          
+
           let currentPropertyId = userProfile.propertyId || "";
 
           if (id) {
@@ -117,6 +118,7 @@ export default function CreateBookingForm() {
         }
       } catch (err) {
         console.error("Failed to load user, booking or amenities", err);
+        toast.error("Failed to load necessary data for booking");
       }
     };
     initData();
@@ -131,15 +133,15 @@ export default function CreateBookingForm() {
     try {
       if (isEditMode) {
         await updateBooking(id, formData);
-        alert("Booking updated successfully!");
+        toast.success("Booking updated successfully!");
         navigate(-1); // Go back
       } else {
         await createBooking(formData);
-        alert("Booking confirmed successfully!");
-        setFormData({ ...formData, bookingDate: "", checkInTime: "", checkOutTime: "" }); // Reset some fields
+        toast.success("Booking confirmed successfully!");
+        navigate("/tenant/bookings");
       }
     } catch (err) {
-      alert("Error: " + (err.response?.data?.message || err.message));
+      toast.error("Error: " + (err.response?.data?.message || err.message));
     }
   };
   return (

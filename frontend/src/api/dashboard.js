@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_URL = "http://localhost:7001/api/dashboard";
+const API_URL = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/api/dashboard`;
 
 export const apiGetOwnerDashboardData = async (ownerId, params = {}) => {
   const token = localStorage.getItem("token");

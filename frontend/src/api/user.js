@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:7001/api/users",
+  baseURL: `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/api/users`,
 });
 
 // Update Profile (Handles both Text and Image)
@@ -41,4 +41,13 @@ export const apiRemoveTenant = async (tenantId) => {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
-};
+};
+
+// Change Password
+export const apiChangePassword = async (data) => {
+  const token = localStorage.getItem("token");
+  const response = await API.put(`/password/change`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};

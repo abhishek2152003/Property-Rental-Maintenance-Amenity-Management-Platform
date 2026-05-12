@@ -11,8 +11,7 @@ import {
   Link,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import "@fontsource/dm-sans";
-import "@fontsource/libre-baskerville";
+import { toast } from "react-toastify";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -33,16 +32,16 @@ export default function Signup() {
   const handleSubmit = async () => {
     // validation should be here
     if (!formData.username || !formData.email || !formData.password) {
-      alert("All fields are required");
+      toast.error("All fields are required");
       return;
     }
     try {
       const res = await registerUser(formData);
-      alert(res.data.message);
+      toast.success(res.data.message);
 
       navigate("/login"); // redirect
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      toast.error(err.response?.data?.message || "Error");
     }
   };
 

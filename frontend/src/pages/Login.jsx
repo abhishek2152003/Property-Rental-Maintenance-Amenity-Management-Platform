@@ -4,6 +4,7 @@ import { loginUser } from "../api/auth";
 import { jwtDecode } from "jwt-decode";
 import { Box, TextField, Typography, Button, Paper, Link } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import "@fontsource/dm-sans";
 import "@fontsource/libre-baskerville";
@@ -25,14 +26,13 @@ export default function Login() {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
-      alert("All fields are required");
+      toast.error("All fields are required");
       return;
     }
 
     try {
       const res = await loginUser(formData);
-      alert(res.data.message);
-      console.log(res.data);
+      toast.success(res.data.message);
       localStorage.setItem("token", res.data.token);
       const decoded = jwtDecode(res.data.token);
       if (decoded.role?.toLowerCase() === "owner") {
@@ -41,7 +41,7 @@ export default function Login() {
         navigate("/tenant/dashboard");
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
+      toast.error(err.response?.data?.message || "Login failed");
     }
   };
   return (
@@ -220,7 +220,8 @@ export default function Login() {
             }}
           >
             <Link
-              href="#"
+              component={RouterLink}
+              to="/forgot-password"
               underline="none"
               sx={{
                 fontSize: "13px",

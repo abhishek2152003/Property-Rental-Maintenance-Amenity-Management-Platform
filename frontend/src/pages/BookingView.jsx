@@ -7,6 +7,8 @@ import {
 } from '@mui/material';
 import { Add, MoreVert, Delete, Visibility, Apartment, Edit } from '@mui/icons-material';
 import { jwtDecode } from "jwt-decode";
+import { toast } from 'react-toastify';
+import { useConfirm } from '../context/ConfirmContext';
 import SideBar from "../component/SideBar";
 import { fetchAllBookings, fetchUserBookings, fetchPropertyBookings, deleteBooking } from "../api/bookings";
 import { fetchOwnerProperties } from "../api/property";
@@ -27,6 +29,7 @@ const theme = {
 
 const BookingsPage = () => {
   const navigate = useNavigate();
+  const confirm = useConfirm();
 
   // Auth & Role logic
   const [user, setUser] = useState(null);
@@ -60,6 +63,7 @@ const BookingsPage = () => {
             }
           } catch (err) {
             console.error("Error fetching user profile for propertyId:", err);
+            toast.error("Failed to load user profile");
           }
         };
         getProfile();
@@ -124,7 +128,14 @@ const BookingsPage = () => {
   const handleDelete = async () => {
     if (!selectedBooking) return;
 
-    if (!window.confirm("Are you sure you want to cancel/delete this booking?")) {
+    const confirmed = await confirm({
+      title: "Cancel Booking",
+      message: "Are you sure you want to cancel/delete this booking? This action cannot be undone.",
+      confirmLabel: "Cancel Booking",
+      isDanger: true
+    });
+
+    if (!confirmed) {
       handleMenuClose();
       return;
     }
@@ -133,9 +144,9 @@ const BookingsPage = () => {
       await deleteBooking(selectedBooking._id);
       // Optimistic UI update
       setBookings(prev => prev.filter(b => b._id !== selectedBooking._id));
-      alert("Booking deleted successfully");
+      toast.success("Booking deleted successfully");
     } catch (err) {
-      alert("Delete failed: " + (err.response?.data?.message || "Server error"));
+      toast.error("Delete failed: " + (err.response?.data?.message || "Server error"));
     } finally {
       handleMenuClose();
     }
@@ -185,22 +196,24 @@ const BookingsPage = () => {
             )}
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={() => navigate("/tenant/bookings/add")}
-              sx={{
-                bgcolor: theme.colors.navy800,
-                borderRadius: theme.radius.full,
-                textTransform: 'none',
-                px: 3,
-                '&:hover': { bgcolor: theme.colors.navy900 }
-              }}
-            >
-              Book Amenity
-            </Button>
-          </Box>
+          {!isOwner && (
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant="contained"
+                startIcon={<Add />}
+                onClick={() => navigate("/tenant/bookings/add")}
+                sx={{
+                  bgcolor: theme.colors.navy800,
+                  borderRadius: theme.radius.full,
+                  textTransform: 'none',
+                  px: 3,
+                  '&:hover': { bgcolor: theme.colors.navy900 }
+                }}
+              >
+                Book Amenity
+              </Button>
+            </Box>
+          )}
         </Box>
 
         {/* Data Table */}
@@ -285,9 +298,6 @@ const BookingsPage = () => {
               <Edit sx={{ fontSize: 18, color: theme.colors.slate500 }} /> Edit Booking
             </MenuItem>
           )}
-          <MenuItem onClick={handleMenuClose} sx={{ fontSize: 14, gap: 1 }}>
-            <Visibility sx={{ fontSize: 18, color: theme.colors.slate500 }} /> View Details
-          </MenuItem>
           {!isOwner && (
             <MenuItem onClick={handleDelete} sx={{ fontSize: 14, gap: 1, color: theme.colors.error }}>
               <Delete sx={{ fontSize: 18 }} /> Cancel Booking

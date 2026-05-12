@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:7001/api/property", // Ensure port matches your server
+  baseURL: `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/api/property`, // Ensure port matches your server
   withCredentials: true, // Required if you are using cookies/sessions for auth
 });
 
@@ -38,8 +38,23 @@ export const deleteProperty = async (id) => {
 };
 
 // Also good to have for your "Edit" functionality later
-export const updateProperty = async (id, updateData) => {
-  const response = await API.put(`/${id}`, updateData);
+export const updateProperty = async (id, formData) => {
+  const data = new FormData();
+  data.append("name", formData.name);
+  data.append("address", formData.address);
+  data.append("totalUnits", formData.totalUnits);
+  data.append("description", formData.description);
+  data.append("ownerId", formData.ownerId);
+
+  if (formData.image) {
+    data.append("image", formData.image);
+  }
+
+  const response = await API.put(`/${id}`, data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
 

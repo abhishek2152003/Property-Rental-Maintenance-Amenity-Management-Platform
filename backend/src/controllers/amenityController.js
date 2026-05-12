@@ -42,9 +42,14 @@ const getAmenityById = async (req, res) => {
 };
 const updateAmenity = async (req, res) => {
     try {
+        const updateData = { ...req.body };
+        if (req.file) {
+            updateData.image = req.file.path;
+        }
+
         const updatedAmenity = await Amenity.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updateData,
             { new: true },
         );
 

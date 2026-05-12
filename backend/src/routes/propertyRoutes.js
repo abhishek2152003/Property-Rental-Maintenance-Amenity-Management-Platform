@@ -16,7 +16,7 @@ const upload = multer({ storage });
 router.post("/", upload.single("image"), createProperty);
 router.get("/", getAllProperty);
 router.get("/:id", getPropertyById);
-router.put("/:id", updateProperty);
+router.put("/:id", upload.single("image"), updateProperty);
 router.delete("/:id", deleteProperty)
 router.get("/owner/:ownerId", verifyToken, getOwnerProperty);
 router.post("/:propertyId/add-tenant", verifyToken, authorizeRoles, addTenantToProperty);

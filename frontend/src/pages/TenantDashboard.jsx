@@ -192,7 +192,7 @@ export default function TenantDashboard({ user }) {
         `}
       </style>
 
-      <Box sx={{ p: 1, px: 2, bgcolor: tokens.slate50, minHeight: "100vh", width: '100%', maxWidth: 'none' }}>
+      <Box sx={{ p: 5, px: 5, bgcolor: tokens.slate50, minHeight: "100vh", width: '100%', maxWidth: 'none' }}>
 
         {/* Row 1: Stats Grid */}
         <Grid container spacing={3} sx={{ mb: 6, opacity: 0 }} className="fade-up stagger-1">
@@ -239,33 +239,33 @@ export default function TenantDashboard({ user }) {
               </Typography>
             </Box>
 
-            <Card sx={{ 
-              borderRadius: '18px', 
-              overflow: 'hidden', 
-              border: '1px solid #F1F5F9', 
-              boxShadow: "0 2px 12px rgba(15,32,68,0.08)" 
+            <Card sx={{
+              borderRadius: '18px',
+              overflow: 'hidden',
+              border: '1px solid #F1F5F9',
+              boxShadow: "0 2px 12px rgba(15,32,68,0.08)"
             }}>
               <TableContainer>
                 <Table>
                   <TableHead sx={{ bgcolor: tokens.slate50 }}>
                     <TableRow>
-                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, width: '20%' }}>Category</TableCell>
-                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, width: '50%' }}>Issue Description</TableCell>
-                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, width: '15%' }}>Status</TableCell>
-                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, textAlign: 'right', width: '15%' }}>Date</TableCell>
+                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, px: 5, width: '20%' }}>Category</TableCell>
+                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, px: 5, width: '50%' }}>Issue Description</TableCell>
+                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, px: 5, width: '15%' }}>Status</TableCell>
+                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, px: 5, textAlign: 'right', width: '15%' }}>Date</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {data?.recentRequests?.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} align="center" sx={{ py: 6, color: tokens.slate400 }}>
+                        <TableCell colSpan={4} align="center" sx={{ py: 6, px: 5, color: tokens.slate400 }}>
                           No maintenance requests found.
                         </TableCell>
                       </TableRow>
                     ) : (
                       data.recentRequests.map((req, idx) => (
                         <TableRow key={req._id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                          <TableCell sx={{ py: 2.5 }}>
+                          <TableCell sx={{ py: 2.5, px: 5 }}>
                             <Typography sx={{ fontSize: '14px', fontWeight: 700, color: tokens.navy900 }}>
                               {req.category}
                             </Typography>
@@ -300,34 +300,34 @@ export default function TenantDashboard({ user }) {
               </Typography>
             </Box>
 
-            <Card sx={{ 
-              borderRadius: '18px', 
-              overflow: 'hidden', 
-              border: '1px solid #F1F5F9', 
-              boxShadow: "0 2px 12px rgba(15,32,68,0.08)" 
+            <Card sx={{
+              borderRadius: '18px',
+              overflow: 'hidden',
+              border: '1px solid #F1F5F9',
+              boxShadow: "0 2px 12px rgba(15,32,68,0.08)"
             }}>
               <TableContainer>
                 <Table>
                   <TableHead sx={{ bgcolor: tokens.slate50 }}>
                     <TableRow>
-                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2 }}>Amenity Name</TableCell>
-                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2 }}>Property Reference</TableCell>
-                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2 }}>Time Slot</TableCell>
-                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2 }}>Current Status</TableCell>
-                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, textAlign: 'right' }}>Booking Date</TableCell>
+                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, px: 5 }}>Amenity Name</TableCell>
+                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, px: 5 }}>Property Reference</TableCell>
+                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, px: 5 }}>Time Slot</TableCell>
+                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, px: 5 }}>Current Status</TableCell>
+                      <TableCell sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em', py: 2, px: 5, textAlign: 'right' }}>Booking Date</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {data?.recentBookings?.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} align="center" sx={{ py: 6, color: tokens.slate400 }}>
+                        <TableCell colSpan={5} align="center" sx={{ py: 6, px: 5, color: tokens.slate400 }}>
                           No upcoming bookings.
                         </TableCell>
                       </TableRow>
                     ) : (
                       data.recentBookings.map((booking) => (
                         <TableRow key={booking._id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                          <TableCell sx={{ py: 2.5 }}>
+                          <TableCell sx={{ py: 2.5, px: 5 }}>
                             <Typography sx={{ fontSize: '15px', fontWeight: 700, color: tokens.navy950 }}>
                               {booking.amenityId?.name || "Facility Reservation"}
                             </Typography>

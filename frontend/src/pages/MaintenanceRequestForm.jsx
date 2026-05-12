@@ -5,6 +5,7 @@ import DashboardLayout from "../component/SideBar";
 import { createMaintenanceRequest, getMaintenanceRequestById, updateMaintenanceRequest } from "../api/maintenanceRequest";
 import { jwtDecode } from "jwt-decode";
 import { fetchUserProfile } from "../api/user";
+import { toast } from "react-toastify";
 
 // PropFlow Design Tokens
 const tokens = {
@@ -96,6 +97,7 @@ export default function CreateMaintenanceForm() {
         }
       } catch (err) {
         console.error("Failed to load data", err);
+        toast.error("Failed to load request data");
       }
     };
     initData();
@@ -110,15 +112,15 @@ export default function CreateMaintenanceForm() {
     try {
       if (isEditMode) {
         await updateMaintenanceRequest(id, formData);
-        alert("Maintenance request updated successfully!");
+        toast.success("Maintenance request updated successfully!");
         navigate("/tenant/maintenance");
       } else {
         await createMaintenanceRequest(formData);
-        alert("Maintenance request submitted!");
-        setFormData({ ...formData, issueDescription: "" }); // Reset form
+        toast.success("Maintenance request submitted!");
+        navigate("/tenant/maintenance");
       }
     } catch (err) {
-      alert(
+      toast.error(
         "Error: " + (err.response?.data?.error || err.message),
       );
     }

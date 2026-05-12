@@ -205,7 +205,7 @@ export default function OwnerDashboard({ user }) {
             <Typography sx={{ fontFamily: "Libre Baskerville", fontSize: "20px", fontWeight: 700, color: tokens.navy900 }}>
               Recent Maintenance Requests
             </Typography>
-            <Button variant="outlined" size="small" sx={{ borderRadius: '9999px', textTransform: 'none', px: 3, borderColor: tokens.slate300, color: tokens.slate700 }}>View All</Button>
+
           </Box>
 
           <Card sx={{ borderRadius: '18px', overflow: 'hidden', border: '1px solid #F1F5F9', boxShadow: "0 2px 12px rgba(15,32,68,0.08)" }}>
@@ -251,107 +251,115 @@ export default function OwnerDashboard({ user }) {
           </Card>
         </Box>
 
-        {/* Row 3: Properties Overview (Left) & Recent Bookings (Right) */}
-        <Grid container spacing={4} sx={{ opacity: 0 }} className="fade-up stagger-3">
-          {/* Properties Overview */}
-          <Grid item xs={12} md={8}>
-            <Typography sx={{ fontFamily: "Libre Baskerville", fontSize: "20px", fontWeight: 700, color: tokens.navy900, mb: 3 }}>
-              Properties Overview
-            </Typography>
-            <Grid container spacing={3}>
-              {(data?.properties || []).map((prop, idx) => (
-                <Grid item xs={12} key={idx}>
-                  <Card sx={{ borderRadius: '18px', border: '1px solid #F1F5F9', boxShadow: "0 2px 12px rgba(15,32,68,0.08)" }}>
-                    <CardContent sx={{ p: 3 }}>
-                      <Grid container spacing={3} alignItems="center">
-                        <Grid item xs={12} md={4}>
-                          <Typography sx={{ fontWeight: 700, color: tokens.navy950, fontSize: '16px', mb: 0.5 }}>{prop.name}</Typography>
-                          <Typography sx={{ fontSize: '12px', color: tokens.slate500, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <LocationIcon sx={{ fontSize: 14 }} /> {prop.address}
-                          </Typography>
-                        </Grid>
-
-                        <Grid item xs={6} md={2}>
-                          <Typography sx={{ fontSize: '10px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Total Units</Typography>
-                          <Typography sx={{ fontSize: '20px', fontWeight: 700, color: tokens.navy950, mt: 0.5 }}>{prop.totalUnits || 0}</Typography>
-                        </Grid>
-
-                        <Grid item xs={6} md={2}>
-                          <Typography sx={{ fontSize: '10px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Tenants</Typography>
-                          <Typography sx={{ fontSize: '20px', fontWeight: 700, color: tokens.blue500, mt: 0.5 }}>{prop.tenantCount}</Typography>
-                        </Grid>
-
-                        <Grid item xs={6} md={2}>
-                          <Typography sx={{ fontSize: '10px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Amenities</Typography>
-                          <Typography sx={{ fontSize: '20px', fontWeight: 700, color: tokens.emerald600, mt: 0.5 }}>{prop.amenityCount}</Typography>
-                        </Grid>
-
-                        <Grid item xs={6} md={2}>
-                          <Typography sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Active Requests</Typography>
-                          <Typography sx={{ fontSize: '20px', fontWeight: 700, color: tokens.amber600, mt: 0.5 }}>{prop.activeRequestCount}</Typography>
-                        </Grid>
-                      </Grid>
-
-                      {/* Occupancy Bar */}
-                      <Box sx={{ mt: 2 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                          <Typography sx={{ fontSize: '11px', fontWeight: 600, color: tokens.slate500 }}>Occupancy Rate</Typography>
-                          <Typography sx={{ fontSize: '11px', fontWeight: 700, color: tokens.blue600 }}>
-                            {prop.totalUnits ? Math.round((prop.tenantCount / prop.totalUnits) * 100) : 0}%
-                          </Typography>
-                        </Box>
-                        <LinearProgress
-                          variant="determinate"
-                          value={prop.totalUnits ? (prop.tenantCount / prop.totalUnits) * 100 : 0}
-                          sx={{ height: 6, borderRadius: 3, bgcolor: '#E2E8F0', '& .MuiLinearProgress-bar': { borderRadius: 3, bgcolor: tokens.blue500 } }}
-                        />
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Grid>
-
-          {/* Recent Bookings */}
-          <Grid item xs={12} md={4}>
-            <Typography sx={{ fontFamily: "Libre Baskerville", fontSize: "20px", fontWeight: 700, color: tokens.navy900, mb: 3 }}>
+        {/* Row 3: Recent Bookings (Full Width) */}
+        <Box sx={{ mb: 6, opacity: 0 }} className="fade-up stagger-3">
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography sx={{ fontFamily: "Libre Baskerville", fontSize: "20px", fontWeight: 700, color: tokens.navy900 }}>
               Recent Bookings
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {data?.recentBookings?.length === 0 ? (
-                <Box sx={{ py: 6, textAlign: 'center', color: tokens.slate400, bgcolor: tokens.white, borderRadius: '18px', border: '1px solid #F1F5F9' }}>No recent bookings</Box>
-              ) : (
-                data.recentBookings.map((booking) => (
-                  <Card key={booking._id} sx={{
-                    borderRadius: '20px',
-                    border: '1px solid #F1F5F9',
-                    boxShadow: "0 2px 12px rgba(15,32,68,0.08)",
-                    transition: "all 0.2s ease",
-                    "&:hover": { borderColor: tokens.blue300, boxShadow: "0 8px 25px rgba(59,130,246,0.08)" }
-                  }}>
-                    <CardContent sx={{ p: 2.5 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
-                        <Box sx={{ pr: 5 }}>
-                          <Typography sx={{ fontWeight: 700, fontSize: '14px', color: tokens.navy950, }}>{booking.amenityId?.name}</Typography>
-                          <Typography sx={{ fontSize: '12px', color: tokens.slate500 }}>{booking.propertyId?.name}</Typography>
-                        </Box>
-                        <StatusBadge status={booking.status} />
-                      </Box>
-                      <Divider sx={{ my: 1.5, borderStyle: 'dashed' }} />
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography sx={{ fontSize: '13px', color: tokens.slate700, fontWeight: 600 }}>{booking.userId?.username}</Typography>
-                        <Typography sx={{ fontSize: '12px', color: tokens.blue600, fontWeight: 700 }}>
-                          {new Date(booking.bookingDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+          </Box>
+
+          <Card sx={{ borderRadius: '18px', overflow: 'hidden', border: '1px solid #F1F5F9', boxShadow: "0 2px 12px rgba(15,32,68,0.08)" }}>
+            <TableContainer>
+              <Table>
+                <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+                  <TableRow>
+                    <TableCell sx={{ fontSize: '12px', fontWeight: 600, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Booking ID</TableCell>
+                    <TableCell sx={{ fontSize: '12px', fontWeight: 600, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Amenity</TableCell>
+                    <TableCell sx={{ fontSize: '12px', fontWeight: 600, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Property</TableCell>
+                    <TableCell sx={{ fontSize: '12px', fontWeight: 600, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Tenant</TableCell>
+                    <TableCell sx={{ fontSize: '12px', fontWeight: 600, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Date</TableCell>
+                    <TableCell sx={{ fontSize: '12px', fontWeight: 600, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Time</TableCell>
+                    <TableCell sx={{ fontSize: '12px', fontWeight: 600, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data?.recentBookings?.length === 0 ? (
+                    <TableRow><TableCell colSpan={7} align="center" sx={{ py: 6 }}>No recent bookings.</TableCell></TableRow>
+                  ) : (
+                    data.recentBookings.map((booking, idx) => (
+                      <TableRow key={booking._id} hover>
+                        <TableCell sx={{ color: tokens.blue600, fontWeight: 600 }}>BKG-00{idx + 1}</TableCell>
+                        <TableCell>
+                          <Typography sx={{ fontWeight: 600, fontSize: '14px', color: tokens.navy950 }}>{booking.amenityId?.name}</Typography>
+                        </TableCell>
+                        <TableCell sx={{ fontSize: '14px', color: tokens.slate700 }}>{booking.propertyId?.name}</TableCell>
+                        <TableCell sx={{ fontSize: '14px', color: tokens.slate700 }}>{booking.userId?.username}</TableCell>
+                        <TableCell sx={{ fontSize: '13px', color: tokens.slate500 }}>
+                          {new Date(booking.bookingDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: '13px', color: tokens.slate500 }}>
+                          {booking.checkInTime} - {booking.checkOutTime}
+                        </TableCell>
+                        <TableCell><StatusBadge status={booking.status} /></TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Card>
+        </Box>
+
+        {/* Row 4: Properties Overview (Full Width) */}
+        <Box sx={{ opacity: 0 }} className="fade-up stagger-3">
+          <Typography sx={{ fontFamily: "Libre Baskerville", fontSize: "20px", fontWeight: 700, color: tokens.navy900, mb: 3 }}>
+            Properties Overview
+          </Typography>
+          <Grid container spacing={3}>
+            {(data?.properties || []).map((prop, idx) => (
+              <Grid item xs={12} key={idx}>
+                <Card sx={{ borderRadius: '18px', border: '1px solid #F1F5F9', boxShadow: "0 2px 12px rgba(15,32,68,0.08)" }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Grid container spacing={3} alignItems="center">
+                      <Grid item xs={12} md={4}>
+                        <Typography sx={{ fontWeight: 700, color: tokens.navy950, fontSize: '16px', mb: 0.5 }}>{prop.name}</Typography>
+                        <Typography sx={{ fontSize: '12px', color: tokens.slate500, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <LocationIcon sx={{ fontSize: 14 }} /> {prop.address}
+                        </Typography>
+                      </Grid>
+
+                      <Grid item xs={6} md={2}>
+                        <Typography sx={{ fontSize: '10px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Total Units</Typography>
+                        <Typography sx={{ fontSize: '20px', fontWeight: 700, color: tokens.navy950, mt: 0.5 }}>{prop.totalUnits || 0}</Typography>
+                      </Grid>
+
+                      <Grid item xs={6} md={2}>
+                        <Typography sx={{ fontSize: '10px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Tenants</Typography>
+                        <Typography sx={{ fontSize: '20px', fontWeight: 700, color: tokens.blue500, mt: 0.5 }}>{prop.tenantCount}</Typography>
+                      </Grid>
+
+                      <Grid item xs={6} md={2}>
+                        <Typography sx={{ fontSize: '10px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Amenities</Typography>
+                        <Typography sx={{ fontSize: '20px', fontWeight: 700, color: tokens.emerald600, mt: 0.5 }}>{prop.amenityCount}</Typography>
+                      </Grid>
+
+                      <Grid item xs={6} md={2}>
+                        <Typography sx={{ fontSize: '11px', fontWeight: 700, color: tokens.slate500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Active Requests</Typography>
+                        <Typography sx={{ fontSize: '20px', fontWeight: 700, color: tokens.amber600, mt: 0.5 }}>{prop.activeRequestCount}</Typography>
+                      </Grid>
+                    </Grid>
+
+                    {/* Occupancy Bar */}
+                    <Box sx={{ mt: 2 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                        <Typography sx={{ fontSize: '11px', fontWeight: 600, color: tokens.slate500 }}>Occupancy Rate</Typography>
+                        <Typography sx={{ fontSize: '11px', fontWeight: 700, color: tokens.blue600 }}>
+                          {prop.totalUnits ? Math.round((prop.tenantCount / prop.totalUnits) * 100) : 0}%
                         </Typography>
                       </Box>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </Box>
+                      <LinearProgress
+                        variant="determinate"
+                        value={prop.totalUnits ? (prop.tenantCount / prop.totalUnits) * 100 : 0}
+                        sx={{ height: 6, borderRadius: 3, bgcolor: '#E2E8F0', '& .MuiLinearProgress-bar': { borderRadius: 3, bgcolor: tokens.blue500 } }}
+                      />
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
-        </Grid>
+        </Box>
       </Box>
     </DashboardLayout>
   );

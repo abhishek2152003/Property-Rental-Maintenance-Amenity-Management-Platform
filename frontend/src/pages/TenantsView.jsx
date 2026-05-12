@@ -28,8 +28,12 @@ const theme = {
   radius: { lg: '18px', xl: '24px', full: '9999px' }
 };
 
+import { toast } from 'react-toastify';
+import { useConfirm } from '../context/ConfirmContext';
+
 const TenantsView = () => {
   const navigate = useNavigate();
+  const confirm = useConfirm();
   const [tenants, setTenants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -68,6 +72,7 @@ const TenantsView = () => {
         setTenants(data.tenants || []);
       } catch (err) {
         console.error("Failed to fetch tenants", err);
+        toast.error("Failed to fetch tenants list");
       } finally {
         setLoading(false);
       }
@@ -80,19 +85,24 @@ const TenantsView = () => {
     setAnchorEl(event.currentTarget);
     setSelectedTenant(tenant);
   };
-
   const handleRemove = async () => {
     if (!selectedTenant) return;
-    if (!window.confirm(`Unlink ${selectedTenant.username} from their property?`)) return;
+    const confirmed = await confirm({
+      title: "Unlink Tenant",
+      message: `Are you sure you want to unlink ${selectedTenant.username} from their property?`,
+      confirmLabel: "Unlink",
+      isDanger: true
+    });
+    if (!confirmed) return;
 
     try {
       setIsRemoving(true);
       await apiRemoveTenant(selectedTenant._id);
       setTenants((prev) => prev.filter((t) => t._id !== selectedTenant._id));
-      alert("Tenant unlinked successfully.");
+      toast.success("Tenant unlinked successfully.");
     } catch (err) {
       console.error("Error removing tenant:", err);
-      alert("Failed to unlink tenant: " + (err.response?.data?.message || err.message));
+      toast.error("Failed to unlink tenant: " + (err.response?.data?.message || err.message));
     } finally {
       setIsRemoving(false);
       setAnchorEl(null);
@@ -158,7 +168,7 @@ const TenantsView = () => {
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                           <Avatar
-                            src={tenant.image ? `http://localhost:7001/${tenant.image}` : ""}
+                            src={tenant.image ? `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/${tenant.image}` : ""}
                             sx={{ width: 40, height: 40, bgcolor: theme.colors.blue50 }}
                           >
                             <Person sx={{ color: theme.colors.navy800 }} />

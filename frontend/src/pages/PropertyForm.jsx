@@ -52,6 +52,8 @@ const labelStyles = {
   fontFamily: '"DM Sans", sans-serif',
 };
 
+import { toast } from "react-toastify";
+
 export default function CreatePropertyForm() {
   const { id } = useParams();
   const isEditMode = !!id;
@@ -97,10 +99,11 @@ export default function CreatePropertyForm() {
             description: propData.description || "",
           }));
           if (propData.image) {
-            setImagePreview(`http://localhost:7001/${propData.image}`);
+            setImagePreview(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/${propData.image}`);
           }
         } catch (error) {
           console.error("Failed to fetch property details:", error);
+          toast.error("Failed to fetch property details");
         }
       }
     };
@@ -125,30 +128,21 @@ export default function CreatePropertyForm() {
 
     try {
       if (!formData.ownerId) {
-        alert("Wait, Owner ID is missing. Please log in again.");
+        toast.error("Wait, Owner ID is missing. Please log in again.");
         return;
       }
       
       if (isEditMode) {
-        // Only sending JSON object as per updateProperty in api/property.js
-        // If image update is needed via FormData, the api route/controller must support it.
-        const updateData = {
-          name: formData.name,
-          address: formData.address,
-          totalUnits: formData.totalUnits,
-          description: formData.description,
-          ownerId: formData.ownerId,
-        };
-        await updateProperty(id, updateData);
-        alert("Property Updated!");
+        await updateProperty(id, formData);
+        toast.success("Property Updated!");
       } else {
         await createProperty(formData);
-        alert("Property Created!");
+        toast.success("Property Created!");
       }
       navigate("/owner/properties");
     } catch (error) {
       console.error("Network error:", error.response?.data?.error || error.message);
-      alert(isEditMode ? "Failed to update property." : "Failed to create property.");
+      toast.error(isEditMode ? "Failed to update property." : "Failed to create property.");
     }
   };
 

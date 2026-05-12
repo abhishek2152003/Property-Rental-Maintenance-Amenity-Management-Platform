@@ -28,6 +28,7 @@ export default function DashboardLayout({ children, pageTitle = "Dashboard" }) {
   const [role, setRole] = useState("tenant");
   const [userName, setUserName] = useState("");
   const [initials, setInitials] = useState("??");
+  const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
     if (token) {
@@ -35,17 +36,22 @@ export default function DashboardLayout({ children, pageTitle = "Dashboard" }) {
         const decoded = jwtDecode(token);
         setRole(decoded.role.toLowerCase());
 
-        // Fetch full profile for name
+        // Fetch full profile for name and image
         const getProfile = async () => {
           try {
             const profile = await fetchUserProfile(decoded.id);
-            if (profile && profile.username) {
-              setUserName(profile.username);
-              // Get Initials (e.g. "Alex Johnson" -> "AJ")
-              const words = profile.username.split(" ");
-              const first = words[0]?.charAt(0).toUpperCase() || "";
-              const last = words[words.length - 1]?.charAt(0).toUpperCase() || "";
-              setInitials(first + (words.length > 1 ? last : ""));
+            if (profile) {
+              if (profile.username) {
+                setUserName(profile.username);
+                // Get Initials (e.g. "Alex Johnson" -> "AJ")
+                const words = profile.username.split(" ");
+                const first = words[0]?.charAt(0).toUpperCase() || "";
+                const last = words[words.length - 1]?.charAt(0).toUpperCase() || "";
+                setInitials(first + (words.length > 1 ? last : ""));
+              }
+              if (profile.image) {
+                setProfileImage(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/${profile.image}`);
+              }
             }
           } catch (err) {
             console.error("Layout Profile Fetch Error:", err);
@@ -106,7 +112,7 @@ export default function DashboardLayout({ children, pageTitle = "Dashboard" }) {
   const handleMenuClick = (item) => {
     if (item.name === "Logout") {
       localStorage.removeItem("token");
-      navigate("/login");
+      navigate("/");
     } else {
       navigate(item.path);
     }
@@ -238,22 +244,26 @@ export default function DashboardLayout({ children, pageTitle = "Dashboard" }) {
               {getGreeting()}, {userName || "User"}
             </Typography>
             <Avatar
+              onClick={() => navigate("/profile")}
+              src={profileImage}
               sx={{
                 width: 38,
                 height: 38,
-                background: `linear-gradient(135deg, ${tokens.navy700}, ${tokens.blue500})`,
+                background: profileImage ? 'transparent' : `linear-gradient(135deg, ${tokens.navy700}, ${tokens.blue500})`,
                 color: tokens.white,
                 fontSize: "14px",
                 fontWeight: 700,
                 fontFamily: '"DM Sans", sans-serif',
                 cursor: "pointer",
                 boxShadow: "0 2px 8px rgba(59,130,246,0.25)",
+                "&:hover": { transform: 'scale(1.05)' }
               }}
             >
-              {initials}
+              {!profileImage && initials}
             </Avatar>
           </Box>
         </Box>
+
 
         {/* PAGE INJECTION (Forms, Tables, etc go here) */}
         <Box component="main" sx={{ flexGrow: 1, overflowY: "auto", display: 'flex', flexDirection: 'column', width: '100%', minWidth: 0 }}>

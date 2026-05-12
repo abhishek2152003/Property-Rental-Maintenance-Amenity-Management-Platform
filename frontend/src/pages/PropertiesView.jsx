@@ -29,10 +29,14 @@ const theme = {
   radius: { lg: '18px', xl: '24px', full: '9999px' }
 };
 
+import { toast } from 'react-toastify';
+import { useConfirm } from '../context/ConfirmContext';
+
 const PropertiesPage = () => {
   // MOCK USER ROLE - Replace with Auth Context
   // const user = { role: 'owner', id: 'ownner', propertyId: 'prop_001' }; 
   const navigate = useNavigate();
+  const confirm = useConfirm();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null); // Initially null
@@ -75,8 +79,8 @@ const PropertiesPage = () => {
         }
 
         const url = isOwner 
-          ? `http://localhost:7001/api/property/owner/${user.id}` 
-          : `http://localhost:7001/api/property/${propertyId}`;
+          ? `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/api/property/owner/${user.id}` 
+          : `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/api/property/${propertyId}`;
         
         const res = await axios.get(url, {
           headers: { Authorization: `Bearer ${token}` }
@@ -85,6 +89,7 @@ const PropertiesPage = () => {
         setProperties(Array.isArray(res.data) ? res.data : [res.data]);
       } catch (err) {
         console.error("Failed to fetch properties", err);
+        toast.error("Failed to fetch properties list");
       } finally {
         setLoading(false);
       }
@@ -99,18 +104,24 @@ const PropertiesPage = () => {
   };
 
   const handleDelete = async () => {
-    if (!selectedProp) return;
-    if (!window.confirm(`Remove ${selectedProp.name}?`)) return;
+    const confirmed = await confirm({
+      title: "Remove Property",
+      message: `Are you sure you want to remove ${selectedProp.name}? This action cannot be undone.`,
+      confirmLabel: "Remove",
+      isDanger: true
+    });
+    if (!confirmed) return;
 
     try {
       setIsDeleting(true);
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:7001/api/property/${selectedProp._id}`, {
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/api/property/${selectedProp._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProperties((prev) => prev.filter((p) => p._id !== selectedProp._id));
+      toast.success("Property removed successfully");
     } catch (err) {
-      alert("Error deleting property.");
+      toast.error("Error removing property.");
     } finally {
       setIsDeleting(false);
       setAnchorEl(null);
@@ -185,7 +196,7 @@ const PropertiesPage = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                           <Avatar 
                             variant="rounded" 
-                            src={prop.image ? `http://localhost:7001/${prop.image}` : ""} 
+                            src={prop.image ? `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/${prop.image}` : ""} 
                             sx={{ width: 50, height: 50, borderRadius: '12px', bgcolor: theme.colors.blue50 }}
                           >
                             <HomeWork sx={{ color: theme.colors.navy800 }} />

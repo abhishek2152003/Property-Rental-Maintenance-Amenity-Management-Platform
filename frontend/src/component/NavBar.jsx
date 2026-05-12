@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { Box, Typography, Button, Avatar, IconButton, Menu, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import { fetchUserProfile } from '../api/user';
 
 const tokens = {
   navy950: '#0A1628',
@@ -26,34 +27,66 @@ const tokens = {
 
 export default function FloatingTopNav() {
   const [anchorElNav, setAnchorElNav] = useState(null);
-  
+  const [anchorElUser, setAnchorElUser] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
+  const [userName, setUserName] = useState("");
+
   const navigate = useNavigate();
   const location = useLocation();
 
   const token = localStorage.getItem("token");
-  let role = "tenant";
+  let user = null;
   if (token) {
     try {
-      role = jwtDecode(token).role.toLowerCase();
-    } catch (e) {}
+      user = jwtDecode(token);
+    } catch (e) { }
   }
 
-  const navLinks = role === "owner" 
+  useEffect(() => {
+    if (user?.id) {
+      const loadProfile = async () => {
+        try {
+          const profile = await fetchUserProfile(user.id);
+          if (profile.image) setProfileImage(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/${profile.image}`);
+          if (profile.username) setUserName(profile.username);
+        } catch (err) {
+          console.error("NavBar profile fetch fail", err);
+        }
+      };
+      loadProfile();
+    }
+  }, [user?.id]);
+
+  const role = user?.role?.toLowerCase() || "tenant";
+  
+  const displayUserName = userName || user?.username || "";
+  const initials = displayUserName 
+    ? displayUserName.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2) 
+    : "??";
+
+  const navLinks = role === "owner"
     ? [
-        { name: 'Dashboard', path: '/dashboard' },
-        { name: 'Properties', path: '/owner/propertyview' },
-        { name: 'Amenities', path: '/owner/amenityview' },
-      ]
+      { name: 'Dashboard', path: '/owner/dashboard' },
+      { name: 'Properties', path: '/owner/properties' },
+      { name: 'Amenities', path: '/owner/amenities' },
+    ]
     : [
-        { name: 'Dashboard', path: '/dashboard' },
-        { name: 'Maintenance', path: '/tenant/maintenanceview' },
-        { name: 'Bookings', path: '/tenant/bookingview' },
-      ];
+      { name: 'Dashboard', path: '/dashboard' },
+      { name: 'Maintenance', path: '/tenant/maintenance' },
+      { name: 'Bookings', path: '/tenant/bookings' },
+    ];
 
   const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
+  const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
+
+  const handleCloseNavMenu = () => setAnchorElNav(null);
+  const handleCloseUserMenu = () => setAnchorElUser(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setAnchorElUser(null);
+    navigate("/");
+  }
 
   return (
     <Box
@@ -65,11 +98,11 @@ export default function FloatingTopNav() {
         left: '50%', // Move to horizontal center
         transform: 'translateX(-50%)', // Perfectly center it
         zIndex: 1100, // Stay above all content
-        
+
         // --- SIZING ---
         width: { xs: 'calc(100% - 32px)', md: 'calc(100% - 48px)' },
         maxWidth: '1200px', // Keeps it a neat "pill" shape on large screens
-        
+
         // --- DESIGN TOKENS ---
         backgroundColor: tokens.white,
         borderRadius: '18px',
@@ -83,6 +116,7 @@ export default function FloatingTopNav() {
       {/* 1. Logo */}
       <Typography
         variant="h6"
+        onClick={() => navigate("/")}
         sx={{
           fontFamily: '"Libre Baskerville", serif',
           fontSize: { xs: '16px', md: '18px' },
@@ -126,49 +160,108 @@ export default function FloatingTopNav() {
         })}
       </Box>
 
-      {/* 3. Actions & Mobile Menu */}
+      {/* 3. Actions & Auth */}
       <Box sx={{ display: 'flex', gap: { xs: '12px', md: '16px' }, alignItems: 'center' }}>
-        
-        {/* Desktop Action Button */}
-        <Button
-          variant="contained"
-          size="small"
-          sx={{
-            display: { xs: 'none', sm: 'flex' },
-            backgroundColor: tokens.navy800,
-            color: tokens.white,
-            borderRadius: '9999px',
-            padding: '8px 20px',
-            fontSize: '13px',
-            fontWeight: 600,
-            textTransform: 'none',
-            fontFamily: '"DM Sans", sans-serif',
-            boxShadow: '0 4px 14px rgba(22,43,91,0.35)',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              backgroundColor: tokens.navy700,
-              transform: 'translateY(-1px)',
-            },
-          }}
-        >
-          + New Request
-        </Button>
-        
-        {/* Avatar */}
-        <Avatar
-          sx={{
-            width: { xs: 32, md: 36 },
-            height: { xs: 32, md: 36 },
-            background: `linear-gradient(135deg, ${tokens.navy700}, ${tokens.blue500})`,
-            color: tokens.white,
-            fontSize: '13px',
-            fontWeight: 700,
-            fontFamily: '"DM Sans", sans-serif',
-            cursor: 'pointer',
-          }}
-        >
-          AJ
-        </Avatar>
+
+        {!token ? (
+          <>
+            <Button
+              onClick={() => navigate("/login")}
+              sx={{
+                color: tokens.navy900,
+                fontFamily: '"DM Sans", sans-serif',
+                fontWeight: 600,
+                textTransform: 'none',
+                fontSize: '14px',
+              }}
+            >
+              Login
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => navigate("/signup")}
+              sx={{
+                backgroundColor: tokens.navy800,
+                color: tokens.white,
+                borderRadius: '9999px',
+                px: 3,
+                fontFamily: '"DM Sans", sans-serif',
+                fontWeight: 600,
+                textTransform: 'none',
+                fontSize: '14px',
+                boxShadow: '0 4px 14px rgba(22,43,91,0.3)',
+                '&:hover': { backgroundColor: tokens.navy700 }
+              }}
+            >
+              Get Started
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => navigate("/dashboard")}
+              sx={{
+                display: { xs: 'none', sm: 'flex' },
+                backgroundColor: tokens.navy800,
+                color: tokens.white,
+                borderRadius: '9999px',
+                padding: '8px 20px',
+                fontSize: '13px',
+                fontWeight: 600,
+                textTransform: 'none',
+                fontFamily: '"DM Sans", sans-serif',
+                boxShadow: '0 4px 14px rgba(22,43,91,0.35)',
+                '&:hover': { backgroundColor: tokens.navy700 },
+              }}
+            >
+              Dashboard
+            </Button>
+
+            <Avatar
+              onClick={handleOpenUserMenu}
+              src={profileImage}
+              sx={{
+                width: { xs: 32, md: 36 },
+                height: { xs: 32, md: 36 },
+                background: profileImage ? 'transparent' : `linear-gradient(135deg, ${tokens.navy700}, ${tokens.blue500})`,
+                color: tokens.white,
+                fontSize: '13px',
+                fontWeight: 700,
+                fontFamily: '"DM Sans", sans-serif',
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                '&:hover': { transform: 'scale(1.05)' }
+              }}
+            >
+              {!profileImage && initials}
+            </Avatar>
+            <Menu
+              anchorEl={anchorElUser}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              sx={{
+                '& .MuiPaper-root': {
+                  borderRadius: '12px',
+                  mt: 1,
+                  minWidth: '150px',
+                  boxShadow: '0 10px 30px rgba(15,32,68,0.12)',
+                  p: 0.5
+                }
+              }}
+            >
+              <MenuItem onClick={() => { handleCloseUserMenu(); navigate("/profile"); }} sx={{ fontSize: '14px', fontFamily: '"DM Sans"', fontWeight: 500, borderRadius: '8px' }}>
+                👤 My Profile
+              </MenuItem>
+              <MenuItem onClick={handleLogout} sx={{ fontSize: '14px', fontFamily: '"DM Sans"', fontWeight: 500, borderRadius: '8px', color: '#EF4444' }}>
+                🚪 Logout
+              </MenuItem>
+            </Menu>
+          </>
+        )}
 
         {/* Mobile Hamburger Menu */}
         <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
@@ -178,7 +271,7 @@ export default function FloatingTopNav() {
           >
             <MenuIcon />
           </IconButton>
-          
+
           <Menu
             anchorEl={anchorElNav}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
@@ -196,15 +289,11 @@ export default function FloatingTopNav() {
               }
             }}
           >
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.path;
-              return (
-              <MenuItem 
-                key={link.name} 
+            {navLinks.map((link) => (
+              <MenuItem
+                key={link.name}
                 onClick={() => { handleCloseNavMenu(); navigate(link.path); }}
                 sx={{
-                  backgroundColor: isActive ? tokens.blue50 : 'transparent',
-                  color: isActive ? tokens.navy800 : tokens.slate700,
                   fontFamily: '"DM Sans", sans-serif',
                   fontSize: '14px',
                   fontWeight: 600,
@@ -215,13 +304,14 @@ export default function FloatingTopNav() {
               >
                 {link.name}
               </MenuItem>
-              );
-            })}
-            <MenuItem sx={{ display: { xs: 'block', sm: 'none' }, pt: 1, pb: 0, px: 0 }}>
-              <Button fullWidth variant="contained" sx={{ backgroundColor: tokens.navy800, color: tokens.white, borderRadius: '9999px', textTransform: 'none', fontWeight: 600 }}>
-                + New Request
-              </Button>
-            </MenuItem>
+            ))}
+            {!token && (
+              <MenuItem onClick={() => { handleCloseNavMenu(); navigate("/login"); }} sx={{ mt: 1 }}>
+                <Button fullWidth variant="contained" sx={{ backgroundColor: tokens.navy800, color: tokens.white, borderRadius: '9999px', textTransform: 'none', fontWeight: 600 }}>
+                  Login
+                </Button>
+              </MenuItem>
+            )}
           </Menu>
         </Box>
       </Box>

@@ -18,7 +18,7 @@ const app = express();
 
 // ✅ Add CORS BEFORE other middleware and routes
 app.use(cors({
-  origin: 'http://localhost:5173', // Your React frontend URL
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Your React frontend URL
   credentials: true
 }));
 
@@ -53,3 +53,5 @@ const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running at port ${PORT}`);
 });
+
+

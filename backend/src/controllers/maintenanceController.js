@@ -20,9 +20,20 @@ const createRequest = async (req, res) => {
         })
     }
 }
+const Property = require("../models/Property");
+
 const getAllRequest = async (req, res) => {
     try {
-        const getAllRequest = await MaintenanceRequest.find()
+        let filter = {};
+        if (req.user && req.user.role === 'owner') {
+            const properties = await Property.find({ ownerId: req.user.id });
+            const propertyIds = properties.map(p => p._id);
+            filter = { propertyId: { $in: propertyIds } };
+        }
+        
+        const getAllRequest = await MaintenanceRequest.find(filter)
+            .populate("propertyId", "name")
+            .populate("userId", "username email");
         res.status(200).json(getAllRequest);
 
     } catch (error) {

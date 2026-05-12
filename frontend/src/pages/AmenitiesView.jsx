@@ -22,9 +22,12 @@ import {
 } from "@mui/material";
 import { Add, MoreVert, Edit, Delete } from "@mui/icons-material";
 import SideBar from "../component/SideBar";
-import { fetchProperties, getPropertyAmenities, deleteAmenity } from "../api/amenity";
+import { getPropertyAmenities, deleteAmenity } from "../api/amenity";
+import { fetchOwnerProperties } from "../api/property";
 import { jwtDecode } from "jwt-decode";
 import { fetchUserProfile } from "../api/user";
+import { toast } from "react-toastify";
+import { useConfirm } from "../context/ConfirmContext";
 
 const theme = {
   colors: {
@@ -44,6 +47,7 @@ const theme = {
 
 const AmenitiesPage = () => {
   const navigate = useNavigate();
+  const confirm = useConfirm();
   const [user, setUser] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
 
@@ -72,7 +76,8 @@ const AmenitiesPage = () => {
 
         setLoading(true);
         if (userIsOwner) {
-          const props = await fetchProperties();
+          const res = await fetchOwnerProperties(decoded.id);
+          const props = res.data || [];
           setProperties(props);
           if (props && props.length > 0) {
             setSelectedProperty(props[0]._id);
@@ -89,6 +94,7 @@ const AmenitiesPage = () => {
         }
       } catch (err) {
         console.error("Initialization/Fetch Error:", err);
+        toast.error("Failed to initialize amenities view");
       } finally {
         setLoading(false);
       }
@@ -114,11 +120,14 @@ const AmenitiesPage = () => {
   const handleDelete = async () => {
     if (!selectedAmenityId) return;
 
-    if (
-      !window.confirm(
-        "Are you sure you want to permanently delete this amenity?",
-      )
-    ) {
+    const confirmed = await confirm({
+      title: "Delete Amenity",
+      message: "Are you sure you want to permanently delete this amenity? This action cannot be undone.",
+      confirmLabel: "Delete",
+      isDanger: true
+    });
+
+    if (!confirmed) {
       handleMenuClose();
       return;
     }
@@ -131,10 +140,10 @@ const AmenitiesPage = () => {
         prev.filter((item) => item._id !== selectedAmenityId),
       );
 
-      alert("Amenity deleted successfully");
+      toast.success("Amenity deleted successfully");
     } catch (err) {
       console.error("Delete failed:", err);
-      alert(
+      toast.error(
         "Delete failed: " + (err.response?.data?.message || "Server error"),
       );
     } finally {
@@ -336,7 +345,7 @@ const AmenitiesPage = () => {
                       <TableCell>
                         <Avatar
                           variant="rounded"
-                          src={`http://localhost:7001/${item.image?.replace(/\\/g, "/")}`}
+                          src={`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/${item.image?.replace(/\\/g, "/")}`}
                           sx={{ width: 48, height: 48, borderRadius: "12px" }}
                         />
                       </TableCell>

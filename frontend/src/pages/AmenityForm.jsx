@@ -50,6 +50,8 @@ const labelStyles = {
   fontFamily: '"DM Sans", sans-serif',
 };
 
+import { toast } from "react-toastify";
+
 export default function CreateAmenityForm() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -71,6 +73,7 @@ export default function CreateAmenityForm() {
         setProperties(data);
       } catch (err) {
         console.error("Failed to load properties for dropdown");
+        toast.error("Failed to load properties list");
       }
     };
     loadProperties();
@@ -89,10 +92,11 @@ export default function CreateAmenityForm() {
             image: null,
           });
           if (amenityData.image) {
-            setImagePreview(`http://localhost:7001/${amenityData.image}`);
+            setImagePreview(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/${amenityData.image}`);
           }
         } catch (error) {
           console.error("Failed to fetch amenity details", error);
+          toast.error("Failed to fetch amenity details");
         }
       }
     };
@@ -115,22 +119,18 @@ export default function CreateAmenityForm() {
     e.preventDefault();
     try {
       if (isEditMode) {
-        const updateData = {
-          name: formData.name,
-          propertyId: formData.propertyId,
-          description: formData.description,
-        };
-        await updateAmenity(id, updateData);
-        alert("Amenity updated successfully!");
+        await updateAmenity(id, formData);
+        toast.success("Amenity updated successfully!");
       } else {
         await createAmenity(formData);
-        alert("Amenity created successfully!");
+        toast.success("Amenity created successfully!");
       }
       navigate("/owner/amenities");
     } catch (err) {
-      alert("Error: " + (err.response?.data?.error || "Server error"));
+      toast.error("Error: " + (err.response?.data?.error || "Server error"));
     }
   };
+
 
   return (
     <DashboardLayout pageTitle="Amenity">

@@ -37,6 +37,8 @@ import {
   updateMaintenanceStatus 
 } from "../api/maintenanceRequest";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
+import { useConfirm } from "../context/ConfirmContext";
 
 // PropFlow Design System Tokens
 const theme = {
@@ -58,6 +60,7 @@ const theme = {
 
 const MaintenancePage = () => {
   const navigate = useNavigate();
+  const confirm = useConfirm();
 
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,6 +97,7 @@ const MaintenancePage = () => {
         setRequests(resData);
       } catch (err) {
         console.error("Data fetch error:", err);
+        toast.error("Failed to fetch maintenance requests");
       } finally {
         setLoading(false);
       }
@@ -149,19 +153,24 @@ const MaintenancePage = () => {
         )
       );
       setAnchorEl(null);
+      toast.success(`Ticket status updated to ${status}`);
     } catch (err) {
       console.error("Error updating status:", err);
-      alert("Failed to update status.");
+      toast.error("Failed to update status.");
     }
   };
 
   const handleDelete = async () => {
     if (!selectedTicket || !selectedTicket._id) return;
 
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this ticket?",
-    );
-    if (!confirmDelete) return;
+    const confirmed = await confirm({
+      title: "Delete Ticket",
+      message: "Are you sure you want to delete this ticket? This action cannot be undone.",
+      confirmLabel: "Delete",
+      isDanger: true
+    });
+
+    if (!confirmed) return;
 
     try {
       await deleteMaintenanceRequest(selectedTicket._id);
@@ -169,10 +178,10 @@ const MaintenancePage = () => {
         prev.filter((req) => req._id !== selectedTicket._id),
       );
       setAnchorEl(null);
-      alert("Ticket Deleted");
+      toast.success("Ticket deleted successfully");
     } catch (err) {
       console.error("Delete error:", err);
-      alert("Failed to delete: " + (err.error || "Server Error"));
+      toast.error("Failed to delete: " + (err.error || "Server Error"));
     }
   };
 

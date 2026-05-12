@@ -2,7 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const router = express.Router();
 const { verifyToken } = require("../middlewares/authMiddleware");
-const { updateProfile, fetchUserProfile, getTenantsByOwner, removeTenantFromProperty } = require("../controllers/userController");
+const { updateProfile, fetchUserProfile, getTenantsByOwner, removeTenantFromProperty, changePassword } = require("../controllers/userController");
 
 // Setup storage
 const storage = multer.diskStorage({
@@ -16,6 +16,9 @@ router.get("/:id", verifyToken, fetchUserProfile);
 
 // Update User Profile
 router.put("/:id", verifyToken, upload.single("image"), updateProfile);
+
+// Change Password
+router.put("/password/change", verifyToken, changePassword);
 
 //owner access routes
 router.get("/owner", verifyToken, (req, res) => {

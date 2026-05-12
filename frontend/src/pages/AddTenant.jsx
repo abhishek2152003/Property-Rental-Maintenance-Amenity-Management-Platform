@@ -4,6 +4,7 @@ import DashboardLayout from "../component/SideBar";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { fetchOwnerProperties, addTenantToProperty } from "../api/property";
+import { toast } from "react-toastify";
 
 // PropFlow Design Tokens
 const tokens = {
@@ -84,6 +85,7 @@ export default function AddTenant() {
       }
     } catch (err) {
       console.error("Failed to fetch properties", err);
+      toast.error("Failed to fetch property list");
     }
   };
 
@@ -94,17 +96,17 @@ export default function AddTenant() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.propertyId || !formData.email) {
-      alert("Please select a property and enter an email.");
+      toast.error("Please select a property and enter an email.");
       return;
     }
 
     try {
       await addTenantToProperty(formData.propertyId, formData.email);
-      alert("Tenant added successfully!");
-      setFormData({ ...formData, email: "" }); // Reset email field
+      toast.success("Tenant added successfully!");
+      navigate("/owner/tenants");
     } catch (error) {
       console.error("Error adding tenant:", error);
-      alert("Failed to add tenant: " + (error.response?.data?.message || error.message));
+      toast.error("Failed to add tenant: " + (error.response?.data?.message || error.message));
     }
   };
 

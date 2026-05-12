@@ -26,9 +26,14 @@ const createProperty = async (req, res) => {
 const updateProperty = async (req, res) => {
     try {
         const id = req.params.id;
+        const updateData = { ...req.body };
+        if (req.file) {
+            updateData.image = req.file.path;
+        }
+
         const updatedProperty = await Property.findByIdAndUpdate(
             id,
-            req.body,
+            updateData,
             { new: true }
         );
         res.status(200).json({

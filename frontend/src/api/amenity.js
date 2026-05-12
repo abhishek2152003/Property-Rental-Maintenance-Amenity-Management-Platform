@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:7001/api", 
+  baseURL: `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:7001'}/api`, 
 });
 
 // 1. Create Amenity (Handles Image + Data)
@@ -53,7 +53,20 @@ export const getAmenityById = async (id) => {
 };
 
 // 6. Update Amenity
-export const updateAmenity = async (id, updateData) => {
-  const response = await API.put(`/amenity/${id}`, updateData);
+export const updateAmenity = async (id, formData) => {
+  const data = new FormData();
+  data.append("name", formData.name);
+  data.append("propertyId", formData.propertyId);
+  data.append("description", formData.description);
+
+  if (formData.image) {
+    data.append("image", formData.image);
+  }
+
+  const response = await API.put(`/amenity/${id}`, data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
